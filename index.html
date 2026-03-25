@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HRI Survey — Robot Trust & Misinformation</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F2EB;
+    --ink: #1A1714;
+    --accent: #C8432A;
+    --muted: #8A8070;
+    --card: #FEFCF8;
+    --border: #D8D0C0;
+    --selected: #C8432A;
+    --selected-bg: #FDF0ED;
+    --hover: #F0EBE0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  /* Header */
+  .site-header {
+    background: var(--ink);
+    color: var(--bg);
+    padding: 48px 60px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .site-header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.08);
+  }
+  .site-header::after {
+    content: '';
+    position: absolute;
+    bottom: -40px; right: 80px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 5vw, 52px);
+    line-height: 1.1;
+    margin-bottom: 20px;
+    max-width: 600px;
+  }
+
+  .header-title em {
+    font-style: italic;
+    color: rgba(255,255,255,0.55);
+  }
+
+  .header-desc {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    max-width: 480px;
+    line-height: 1.7;
+  }
+
+  .header-meta {
+    margin-top: 32px;
+    display: flex;
+    gap: 32px;
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    letter-spacing: 0.05em;
+  }
+
+  /* Progress */
+  .progress-bar {
+    height: 3px;
+    background: var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  /* Main layout */
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 60px 24px 120px;
+  }
+
+  /* Section headers */
+  .section-header {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-bottom: 32px;
+    margin-top: 64px;
+  }
+
+  .section-header:first-child {
+    margin-top: 0;
+  }
+
+  .section-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent);
+    letter-spacing: 0.15em;
+    padding-top: 6px;
+    min-width: 28px;
+  }
+
+  .section-info h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 24px;
+    margin-bottom: 6px;
+  }
+
+  .section-info p {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  /* Question cards */
+  .question-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 28px 32px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+  }
+
+  .question-card:hover {
+    border-color: var(--ink);
+  }
+
+  .question-card.answered {
+    border-left: 3px solid var(--accent);
+  }
+
+  .question-text {
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 20px;
+    font-weight: 400;
+  }
+
+  .question-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.1em;
+    margin-bottom: 8px;
+  }
+
+  .reverse-tag {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: var(--muted);
+    background: var(--hover);
+    border: 1px solid var(--border);
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  /* Likert scale */
+  .likert-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .likert-labels {
+    display: flex;
+    justify-content: space-between;
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+    padding: 0 2px;
+  }
+
+  .likert-options {
+    display: flex;
+    gap: 6px;
+  }
+
+  .likert-option {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .likert-option input[type="radio"] {
+    display: none;
+  }
+
+  .likert-btn {
+    width: 100%;
+    height: 40px;
+    border: 1px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    position: relative;
+  }
+
+  .likert-btn:hover {
+    background: var(--hover);
+    border-color: var(--ink);
+    color: var(--ink);
+  }
+
+  .likert-option input[type="radio"]:checked + .likert-btn {
+    background: var(--selected-bg);
+    border-color: var(--selected);
+    color: var(--selected);
+    font-weight: 500;
+  }
+
+  /* Select dropdown */
+  .select-wrap {
+    position: relative;
+  }
+
+  select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    border-radius: 2px;
+    appearance: none;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  select:focus {
+    outline: none;
+    border-color: var(--ink);
+  }
+
+  .select-arrow {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: var(--muted);
+    font-size: 10px;
+  }
+
+  /* Submit section */
+  .submit-section {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .submit-note {
+    font-size: 13px;
+    color: var(--muted);
+    line-height: 1.5;
+    max-width: 340px;
+  }
+
+  .submit-btn {
+    background: var(--ink);
+    color: var(--bg);
+    border: none;
+    padding: 16px 40px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 2px;
+    transition: background 0.2s;
+  }
+
+  .submit-btn:hover {
+    background: var(--accent);
+  }
+
+  /* Success overlay */
+  .success-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--ink);
+    color: var(--bg);
+    z-index: 999;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 20px;
+    padding: 40px;
+  }
+
+  .success-overlay.show { display: flex; }
+
+  .success-icon {
+    font-size: 48px;
+    margin-bottom: 8px;
+  }
+
+  .success-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 36px;
+  }
+
+  .success-sub {
+    color: rgba(255,255,255,0.5);
+    font-size: 14px;
+    max-width: 360px;
+    line-height: 1.6;
+  }
+
+  /* Divider */
+  .section-divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 8px 0 20px;
+  }
+
+  @media (max-width: 560px) {
+    .site-header { padding: 36px 24px 32px; }
+    .likert-labels { font-size: 9px; }
+    .likert-btn { height: 36px; font-size: 11px; }
+    .submit-section { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-label">EN.601.491/691 — Human-Robot Interaction</div>
+  <h1 class="header-title">Trust, Credibility &<br><em>Misinformation</em> in Robotics</h1>
+  <p class="header-desc">This survey explores how people perceive and respond to information provided by robotic systems. All responses are anonymous and used for research purposes only.</p>
+  <div class="header-meta">
+    <span>20 questions</span>
+    <span>~5 minutes</span>
+    <span>7-point scale</span>
+  </div>
+</header>
+
+<div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+<main class="main">
+  <form id="surveyForm">
+
+    <!-- Section: Background -->
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-info">
+        <h2>Background</h2>
+        <p>A few quick questions about your experience with technology.</p>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q1">
+      <div class="question-num">Q1</div>
+      <div class="question-text">How often do you interact with AI systems (chatbots, voice assistants, etc.)?</div>
+      <div class="select-wrap">
+        <select name="q1" onchange="markAnswered('card-q1'); updateProgress()">
+          <option value="">Select an option</option>
+          <option>Never</option>
+          <option>Rarely</option>
+          <option>Sometimes</option>
+          <option>Often</option>
+          <option>Very Often</option>
+        </select>
+        <span class="select-arrow">▾</span>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q2">
+      <div class="question-num">Q2</div>
+      <div class="question-text">How much do you typically trust news or information from non-human sources (apps, bots, algorithms)?</div>
+      <div class="select-wrap">
+        <select name="q2" onchange="markAnswered('card-q2'); updateProgress()">
+          <option value="">Select an option</option>
+          <option>Not at all</option>
+          <option>Slightly</option>
+          <option>Moderately</option>
+          <option>Very much</option>
+          <option>Completely</option>
+        </select>
+        <span class="select-arrow">▾</span>
+      </div>
+    </div>
+
+    <!-- Section: Concept 1 -->
+    <div class="section-header">
+      <div class="section-num">02</div>
+      <div class="section-info">
+        <h2>Trust in Robot-Provided Information</h2>
+        <p>Rate your agreement with each statement on a scale from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q3">
+      <div class="question-num">Q3</div>
+      <div class="question-text">I would trust information given to me by a robot.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q3"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q4">
+      <div class="question-num">Q4</div>
+      <div class="question-text">I would act on a recommendation made by a robot without double-checking it.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q4"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q5">
+      <div class="question-num">Q5</div>
+      <div class="question-text">A robot is a reliable source of factual information.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q5"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q6">
+      <div class="question-num">Q6</div>
+      <div class="question-text">I would feel confident repeating facts that a robot told me.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q6"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q7">
+      <div class="question-num">Q7</div>
+      <div class="question-text">I trust a robot's judgment when it provides information on complex topics.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q7"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q8">
+      <div class="question-num">Q8</div>
+      <div class="question-text">I would question whether a robot's information is accurate. <span class="reverse-tag">REVERSE</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q8"></div>
+      </div>
+    </div>
+
+    <!-- Section: Concept 2 -->
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-info">
+        <h2>Perceived Credibility of the Robot</h2>
+        <p>Rate your agreement with each statement on a scale from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q9">
+      <div class="question-num">Q9</div>
+      <div class="question-text">The robot seems knowledgeable about the topics it discusses.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q9"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q10">
+      <div class="question-num">Q10</div>
+      <div class="question-text">The robot comes across as a competent information source.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q10"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q11">
+      <div class="question-num">Q11</div>
+      <div class="question-text">I believe the robot is capable of providing accurate information.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q11"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q12">
+      <div class="question-num">Q12</div>
+      <div class="question-text">The robot seems well-informed.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q12"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q13">
+      <div class="question-num">Q13</div>
+      <div class="question-text">The robot appears to understand what it is talking about.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q13"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q14">
+      <div class="question-num">Q14</div>
+      <div class="question-text">The robot seems unqualified to give information on serious topics. <span class="reverse-tag">REVERSE</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q14"></div>
+      </div>
+    </div>
+
+    <!-- Section: Concept 3 -->
+    <div class="section-header">
+      <div class="section-num">04</div>
+      <div class="section-info">
+        <h2>Misinformation Susceptibility</h2>
+        <p>Rate your agreement with each statement on a scale from 1 (Strongly Disagree) to 7 (Strongly Agree).</p>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q15">
+      <div class="question-num">Q15</div>
+      <div class="question-text">I would notice if a robot told me something factually incorrect. <span class="reverse-tag">REVERSE</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q15"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q16">
+      <div class="question-num">Q16</div>
+      <div class="question-text">I might unknowingly share false information if a robot told it to me.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q16"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q17">
+      <div class="question-num">Q17</div>
+      <div class="question-text">I find it difficult to tell when a robot is giving me inaccurate information.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q17"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q18">
+      <div class="question-num">Q18</div>
+      <div class="question-text">A robot could easily mislead me without me realizing it.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q18"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q19">
+      <div class="question-num">Q19</div>
+      <div class="question-text">I am confident in my ability to fact-check information from a robot. <span class="reverse-tag">REVERSE</span></div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q19"></div>
+      </div>
+    </div>
+
+    <div class="question-card" id="card-q20">
+      <div class="question-num">Q20</div>
+      <div class="question-text">I would accept a robot's explanation of an event without seeking a second opinion.</div>
+      <div class="likert-wrap">
+        <div class="likert-labels"><span>Strongly Disagree</span><span>Strongly Agree</span></div>
+        <div class="likert-options" id="likert-q20"></div>
+      </div>
+    </div>
+
+    <!-- Submit -->
+    <div class="submit-section">
+      <p class="submit-note">Your responses are anonymous and will only be used for academic research within EN.601.491/691.</p>
+      <button type="button" class="submit-btn" onclick="handleSubmit()">Submit Responses</button>
+    </div>
+
+  </form>
+</main>
+
+<!-- Success -->
+<div class="success-overlay" id="successOverlay">
+  <div class="success-icon">✓</div>
+  <h2 class="success-title">Thank you.</h2>
+  <p class="success-sub">Your responses have been recorded. This data will contribute to scale construction research in Human-Robot Interaction.</p>
+</div>
+
+<script>
+  const likertQs = [3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20];
+  const totalQ = 20;
+
+  function buildLikerts() {
+    likertQs.forEach(n => {
+      const container = document.getElementById(`likert-q${n}`);
+      if (!container) return;
+      for (let v = 1; v <= 7; v++) {
+        const opt = document.createElement('label');
+        opt.className = 'likert-option';
+        opt.innerHTML = `
+          <input type="radio" name="q${n}" value="${v}" onchange="markAnswered('card-q${n}'); updateProgress()">
+          <span class="likert-btn">${v}</span>
+        `;
+        container.appendChild(opt);
+      }
+    });
+  }
+
+  function markAnswered(cardId) {
+    document.getElementById(cardId).classList.add('answered');
+  }
+
+  function updateProgress() {
+    let answered = 0;
+    for (let i = 1; i <= totalQ; i++) {
+      const els = document.querySelectorAll(`[name="q${i}"]`);
+      const isAnswered = Array.from(els).some(el => {
+        if (el.tagName === 'SELECT') return el.value !== '';
+        return el.checked;
+      });
+      if (isAnswered) answered++;
+    }
+    const pct = (answered / totalQ) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  }
+
+  function collectResponses() {
+    const data = {
+      timestamp: new Date().toISOString(),
+      responses: {}
+    };
+    for (let i = 1; i <= totalQ; i++) {
+      const els = document.querySelectorAll(`[name="q${i}"]`);
+      let value = null;
+      els.forEach(el => {
+        if (el.tagName === 'SELECT') {
+          value = el.value || null;
+        } else if (el.checked) {
+          value = parseInt(el.value);
+        }
+      });
+      data.responses[`q${i}`] = value;
+    }
+    return data;
+  }
+
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxTedTHRnHX7gwU27_QFM4agtEXCYlRt-6kFtkqerSr6B5g3XoLzqGQUAXBeLnkiCMx/exec';
+
+  function handleSubmit() {
+    const data = collectResponses();
+    const btn = document.querySelector('.submit-btn');
+    btn.textContent = 'Submitting...';
+    btn.disabled = true;
+
+    fetch(SHEET_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+    .then(() => {
+      document.getElementById('successOverlay').classList.add('show');
+      window.scrollTo(0, 0);
+    })
+    .catch(() => {
+      btn.textContent = 'Submit Responses';
+      btn.disabled = false;
+      alert('Something went wrong. Please try submitting again.');
+    });
+  }
+
+  buildLikerts();
+</script>
+</body>
+</html>
